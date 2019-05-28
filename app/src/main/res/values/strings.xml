@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">薅羊毛</string>
+
+    <string name="action_start_reader_text">启动阅读</string>
+    <string name="action_stop_reader_text">停止阅读</string>
+    <string name="action_setting_text">阅读设置</string>
+    <string name="action_app_sys_text">开启悬浮框</string>
+    <string name="all_checked_text">=全选中</string>
+    <string name="not_all_checked_text">全不选=</string>
+    <string name="set_aways_bright_text">设置永不息屏</string>
+    <string name="exit_app_text">退出阅读</string>
+
+    <string name="test_text">测试&#8230;</string>
+
+    <string name="prompt_text">提示</string>
+    <string name="ok_text_text">确定</string>
+    <string name="cancel_text">取消</string>
+
+    <string name="not_remind_again">不再提示</string>
+    <string name="please_wait_ing">请稍候……</string>
+    <string name="check_online">在线查看。。。</string>
+</resources>
