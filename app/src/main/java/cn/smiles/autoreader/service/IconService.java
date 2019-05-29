@@ -55,6 +55,8 @@ public class IconService extends Service {
     private MyIAIDL myAidl;
     private MyServiceConnection myConn;
     private Handler mhandler;
+    private ArrayList<RApp> rApps;
+    public static boolean isRun;
 
     public IconService() {
     }
@@ -91,31 +93,35 @@ public class IconService extends Service {
         if (intent == null) return START_STICKY;
         boolean iShow = intent.getBooleanExtra("iShow", true);
         if (iShow) {
+            //需要阅读的APP集合
+            ArrayList<RApp> temp = (ArrayList<RApp>) intent.getSerializableExtra("rApps");
             if (wmContentView != null) {
                 int rid = R.drawable.ic_play_circle_outline_pink_600_24dp;
                 if (isRun) {
                     rid = R.drawable.ic_pause_circle_outline_pink_600_24dp;
                 }
                 wmContentView.setBackgroundResource(rid);
-                runAotuReader(intent);
+                runAotuReader(temp);
                 return START_STICKY;
             }
             openAndroidWindow();
-            runAotuReader(intent);
+            runAotuReader(temp);
         } else {
             closeWindowView();
         }
         return START_STICKY;
     }
 
-    public static boolean isRun;
-
-    private void runAotuReader(Intent intent) {
+    private void runAotuReader(ArrayList<RApp> temp) {
+        if (temp == null) return;
+        rApps = new ArrayList<>(temp);
         new Thread(() -> {
             for (; ; ) {
+                if (rApps == null) {
+                    KTools.showToast("待阅读 rApps==null");
+                    return;
+                }
                 KTools.showToast("阅读服务启动中…");
-                //需要阅读的APP集合
-                ArrayList<RApp> rApps = (ArrayList<RApp>) intent.getSerializableExtra("rApps");
                 if (KTools.getBooleanPreference(SettingActivity.RANDOM_READING, false))
                     Collections.shuffle(rApps);//乱序阅读
                 ClearTools.freeMemory();

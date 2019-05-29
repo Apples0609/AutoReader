@@ -64,7 +64,7 @@ public class QuKanDian extends RApp {
         KTools.sleep(3);
         KPhone.swipe(383, 1060, 437, 283);
         KTools.sleep(3);
-        KPhone.click(270, 472);
+        KPhone.click(380, 1028);
         KTools.sleep(9);
         int f = 6;
         for (int i = 1; i <= f; i++) {

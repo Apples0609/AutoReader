@@ -40,6 +40,10 @@
             android:label="安卓辅助保活服务"
             android:process=":RemoteSer">
         </service>
+        <service
+            android:name=".service.MyIntentService"
+            android:exported="false">
+        </service>
 
         <receiver
             android:name=".receiver.BootBroadcastReceiver"
