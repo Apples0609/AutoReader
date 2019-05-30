@@ -25,20 +25,14 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.Objects;
 
 import cn.smiles.autoreader.KApplication;
 import cn.smiles.autoreader.MainActivity;
 import cn.smiles.autoreader.R;
-import cn.smiles.autoreader.activity.SettingActivity;
 import cn.smiles.autoreader.aidl.IMyAidlInterface;
 import cn.smiles.autoreader.ktool.KPhone;
 import cn.smiles.autoreader.ktool.KTools;
-import cn.smiles.autoreader.rapp.ClearTools;
-import cn.smiles.autoreader.rapp.RApp;
 import cn.smiles.autoreader.view.MyLinearLayout;
 
 
@@ -55,8 +49,7 @@ public class IconService extends Service {
     private MyIAIDL myAidl;
     private MyServiceConnection myConn;
     private Handler mhandler;
-    private ArrayList<RApp> rApps;
-    public static boolean isRun;
+
 
     public IconService() {
     }
@@ -91,69 +84,16 @@ public class IconService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) return START_STICKY;
-        boolean iShow = intent.getBooleanExtra("iShow", true);
-        if (iShow) {
-            //需要阅读的APP集合
-            ArrayList<RApp> temp = (ArrayList<RApp>) intent.getSerializableExtra("rApps");
-            if (wmContentView != null) {
-                int rid = R.drawable.ic_play_circle_outline_pink_600_24dp;
-                if (isRun) {
-                    rid = R.drawable.ic_pause_circle_outline_pink_600_24dp;
-                }
-                wmContentView.setBackgroundResource(rid);
-                runAotuReader(temp);
-                return START_STICKY;
+        if (wmContentView != null) {
+            int rid = R.drawable.ic_play_circle_outline_pink_600_24dp;
+            if (MyIntentService.isRun) {
+                rid = R.drawable.ic_pause_circle_outline_pink_600_24dp;
             }
-            openAndroidWindow();
-            runAotuReader(temp);
-        } else {
-            closeWindowView();
+            wmContentView.setBackgroundResource(rid);
+            return START_STICKY;
         }
+        openAndroidWindow();
         return START_STICKY;
-    }
-
-    private void runAotuReader(ArrayList<RApp> temp) {
-        if (temp == null) return;
-        rApps = new ArrayList<>(temp);
-        new Thread(() -> {
-            for (; ; ) {
-                if (rApps == null) {
-                    KTools.showToast("待阅读 rApps==null");
-                    return;
-                }
-                KTools.showToast("阅读服务启动中…");
-                if (KTools.getBooleanPreference(SettingActivity.RANDOM_READING, false))
-                    Collections.shuffle(rApps);//乱序阅读
-                ClearTools.freeMemory();
-                for (int i = 0; i < rApps.size(); i++) {
-                    int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-                    final int STARTHOUR = 0;//休眠开始时间，0
-                    final int ENDHOUR = 5;//休眠结束时间，5 TODO
-                    if (isRun && hour > STARTHOUR) {
-                        if (hour < ENDHOUR) {
-                            KTools.runAPPByPackageName(KApplication.context.getPackageName());
-                            while (true) {
-                                hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-                                if (hour < ENDHOUR) {
-                                    KTools.showToast("夜间休眠中……");
-                                    KTools.sleep(2 * 60);
-                                    continue;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    if (isRun) {
-                        RApp rApp = rApps.get(i);
-                        KTools.showToast("===" + (i + 1) + "/" + rApps.size() + "===");
-                        rApp.runApp();
-                    } else {
-                        return;
-                    }
-                }
-                ClearTools.clearAPK();
-            }
-        }).start();
     }
 
     /**
@@ -165,7 +105,7 @@ public class IconService extends Service {
         wmParamsY = asp.getInt("wmParamsY", 0);
         wmContentView = new Button(getApplicationContext());
         int rid = R.drawable.ic_play_circle_outline_pink_600_24dp;
-        if (isRun) {
+        if (MyIntentService.isRun) {
             rid = R.drawable.ic_pause_circle_outline_pink_600_24dp;
         }
         wmContentView.setBackgroundResource(rid);
@@ -192,7 +132,7 @@ public class IconService extends Service {
                         paramX = wmParams.x;
                         paramY = wmParams.y;
                         int rid = R.drawable.ic_play_circle_outline_pink_100_24dp;
-                        if (isRun) {
+                        if (MyIntentService.isRun) {
                             rid = R.drawable.ic_pause_circle_outline_pink_100_24dp;
                         }
                         v.setBackgroundResource(rid);
@@ -211,7 +151,7 @@ public class IconService extends Service {
                     case MotionEvent.ACTION_CANCEL:
 //                        Log.i(TAG, "ACTION_UP");
                         int rid2 = R.drawable.ic_play_circle_outline_pink_600_24dp;
-                        if (isRun) {
+                        if (MyIntentService.isRun) {
                             rid2 = R.drawable.ic_pause_circle_outline_pink_600_24dp;
                         }
                         v.setBackgroundResource(rid2);

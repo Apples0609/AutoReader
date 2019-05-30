@@ -47,6 +47,7 @@ import cn.smiles.autoreader.rapp.YinLiZiXun;
 import cn.smiles.autoreader.rapp.YouKanTou_ReDianZiXun;
 import cn.smiles.autoreader.rapp.YueKanYueZuan;
 import cn.smiles.autoreader.service.IconService;
+import cn.smiles.autoreader.service.MyIntentService;
 import cn.smiles.autoreader.service.RemoteService;
 
 public class MainActivity extends AppCompatActivity {
@@ -93,7 +94,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (IconService.isRun) {
+        Intent intent = new Intent(this.getApplicationContext(), IconService.class);
+        startService(intent);
+        startService(new Intent(this.getApplicationContext(), RemoteService.class));
+
+        if (MyIntentService.isRun) {
             viewOverlap.setVisibility(View.VISIBLE);
         } else {
             viewOverlap.setVisibility(View.INVISIBLE);
@@ -138,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void runStart() {
-        if (IconService.isRun)
+        if (MyIntentService.isRun)
             return;
         if (rApps.isEmpty()) {
             KTools.showToast("必须选择要阅读的APP！！！");
@@ -147,26 +152,25 @@ public class MainActivity extends AppCompatActivity {
             KTools.showToast("即将开始阅读：" + rApps.size() + " 个APP");
             moveTaskToBack(true);
 
-            IconService.isRun = true;
+            MyIntentService.isRun = true;
             Collections.sort(rApps, (t, t1) -> Integer.compare(t.sIndex, t1.sIndex));
+            MyIntentService.startActionService(this, rApps);
 
             Intent intent = new Intent(this.getApplicationContext(), IconService.class);
-            intent.putExtra("rApps", rApps);
-            intent.putExtra("iShow", true);
             startService(intent);
             startService(new Intent(this.getApplicationContext(), RemoteService.class));
         }
     }
 
     private void runStop() {
-        if (!IconService.isRun)
+        if (!MyIntentService.isRun)
             return;
         viewOverlap.setVisibility(View.INVISIBLE);
-        IconService.isRun = false;
-        Intent intent = new Intent(this.getApplicationContext(), IconService.class);
-        intent.putExtra("iShow", false);
-        startService(intent);
+        MyIntentService.isRun = false;
         KTools.showToastorLong(this, "停止中……");
+        Intent intent = new Intent(this.getApplicationContext(), IconService.class);
+        startService(intent);
+        startService(new Intent(this.getApplicationContext(), RemoteService.class));
     }
 
 
@@ -175,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_stop_reader) {
             runStop();
         }
-        if (IconService.isRun) {
+        if (MyIntentService.isRun) {
             KTools.showToast("阅读进行中\n设置必须先停止阅读");
             return super.onOptionsItemSelected(item);
         }

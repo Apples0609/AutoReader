@@ -2,7 +2,7 @@ package cn.smiles.autoreader.rapp;
 
 import cn.smiles.autoreader.ktool.KPhone;
 import cn.smiles.autoreader.ktool.KTools;
-import cn.smiles.autoreader.service.IconService;
+import cn.smiles.autoreader.service.MyIntentService;
 
 public class ShanDianHeZi extends RApp {
 
@@ -29,7 +29,7 @@ public class ShanDianHeZi extends RApp {
             }
             KTools.sleep(20);
             for (int i = 1; i <= READNUMBER; i++) {
-                if (!IconService.isRun) return;
+                if (!MyIntentService.isRun) return;
                 KTools.showToast(KTools.sformat("%s 正在阅读 %d/%d 篇", appName, i, READNUMBER));
                 reading(i);
                 //时段奖励
@@ -68,7 +68,7 @@ public class ShanDianHeZi extends RApp {
         KTools.sleep(9);
         int f = 6;
         for (int i = 1; i <= f; i++) {
-            if (!IconService.isRun) return;
+            if (!MyIntentService.isRun) return;
             KTools.showToast(KTools.sformat("%s 阅读第 %d 篇，滑动 %d/%d", appName, si, i, f));
             KPhone.swipe(383, 1060, 437, 283);
             KTools.sleep(KTools.getRandomNumberInRange(3, 6));
