@@ -11,21 +11,35 @@ import java.util.Collections;
 import cn.smiles.autoreader.KApplication;
 import cn.smiles.autoreader.activity.SettingActivity;
 import cn.smiles.autoreader.ktool.KTools;
+import cn.smiles.autoreader.rapp.BaiWanKanDian;
 import cn.smiles.autoreader.rapp.ClearTools;
+import cn.smiles.autoreader.rapp.DaZhongTouTiao;
+import cn.smiles.autoreader.rapp.ErTouTiao;
+import cn.smiles.autoreader.rapp.JuKanDian;
+import cn.smiles.autoreader.rapp.MaYiTouTiao;
+import cn.smiles.autoreader.rapp.QuKanDian;
+import cn.smiles.autoreader.rapp.QuTouTiao;
 import cn.smiles.autoreader.rapp.RApp;
+import cn.smiles.autoreader.rapp.ShanDianHeZi;
+import cn.smiles.autoreader.rapp.SouHuZiXun;
+import cn.smiles.autoreader.rapp.TianTianQuWen;
+import cn.smiles.autoreader.rapp.TouTiaoDuoDuo;
+import cn.smiles.autoreader.rapp.WeiLiKanKan;
+import cn.smiles.autoreader.rapp.XinTouTiao;
+import cn.smiles.autoreader.rapp.YinLiZiXun;
+import cn.smiles.autoreader.rapp.YouKanTou_ReDianZiXun;
+import cn.smiles.autoreader.rapp.YueKanYueZuan;
 
 public class MyIntentService extends IntentService {
     private static final String ACTION_FOO = "cn.smiles.autoreader.service.action.FOO";
-    private ArrayList<RApp> rApps;
     public static boolean isRun;
 
     public MyIntentService() {
         super("MyIntentService");
     }
 
-    public static void startActionService(Context context, ArrayList<RApp> rApps) {
+    public static void startActionService(Context context) {
         Intent intent = new Intent(context, MyIntentService.class);
-        intent.putExtra("rApps", rApps);
         intent.setAction(ACTION_FOO);
         context.startService(intent);
     }
@@ -34,17 +48,14 @@ public class MyIntentService extends IntentService {
     @Override
     protected void onHandleIntent(final Intent intent) {
         if (intent != null) {
-            //需要阅读的APP集合
-            ArrayList<RApp> rApps = (ArrayList<RApp>) intent.getSerializableExtra("rApps");
-            runAotuReader(rApps);
+            runAotuReader();
         }
     }
 
-    private void runAotuReader(ArrayList<RApp> temp) {
-        if (temp == null) return;
-        rApps = new ArrayList<>(temp);
+    private void runAotuReader() {
         new Thread(() -> {
             for (; ; ) {
+                ArrayList<RApp> rApps = new ArrayList<>(getAllReadsApp());
                 if (rApps.isEmpty()) {
                     KTools.showToast("待阅读 rApps==0");
                     return;
@@ -80,8 +91,48 @@ public class MyIntentService extends IntentService {
                     }
                 }
                 ClearTools.clearAPK();
+                rApps.clear();
+                System.gc();
             }
         }).start();
+    }
+
+    /**
+     * 获取需要阅读的APP实例集合
+     *
+     * @return
+     */
+    private ArrayList<RApp> getAllReadsApp() {
+        ArrayList<RApp> rApps = new ArrayList<>();
+        isReadRApp(rApps, new WeiLiKanKan());
+        isReadRApp(rApps, new BaiWanKanDian());
+        isReadRApp(rApps, new TianTianQuWen());
+        isReadRApp(rApps, new DaZhongTouTiao());
+        isReadRApp(rApps, new ErTouTiao());
+        isReadRApp(rApps, new JuKanDian());
+        isReadRApp(rApps, new MaYiTouTiao());
+        isReadRApp(rApps, new QuKanDian());
+        isReadRApp(rApps, new QuTouTiao());
+        isReadRApp(rApps, new YinLiZiXun());
+        isReadRApp(rApps, new ShanDianHeZi());
+        isReadRApp(rApps, new SouHuZiXun());
+        isReadRApp(rApps, new TouTiaoDuoDuo());
+        isReadRApp(rApps, new XinTouTiao());
+        isReadRApp(rApps, new YouKanTou_ReDianZiXun());
+        isReadRApp(rApps, new YueKanYueZuan());
+        return rApps;
+    }
+
+    /**
+     * 判断是否需要
+     *
+     * @param rApps
+     * @param rApp
+     */
+    private void isReadRApp(ArrayList<RApp> rApps, RApp rApp) {
+        boolean b = KTools.getBooleanPreference(rApp.packageName, false);
+        if (b)
+            rApps.add(rApp);
     }
 
 }

@@ -19,7 +19,6 @@ import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     @BindView(R.id.view_overlap)
     View viewOverlap;
-    private ArrayList<RApp> rApps;
     private ArrayList<RApp> myDataset;
     private MyAdapter mAdapter;
 
@@ -76,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         layoutManager.setFlexWrap(FlexWrap.WRAP);
         recyclerView.setLayoutManager(layoutManager);
 
-        rApps = new ArrayList<>();
         myDataset = addMyDatas();
         mAdapter = new MyAdapter(myDataset);
         recyclerView.setAdapter(mAdapter);
@@ -137,8 +134,8 @@ public class MainActivity extends AppCompatActivity {
             rApp.sIndex = i + 1;
             if (rApp.isEnable) {
                 rApp.isCheck = KTools.getBooleanPreference(rApp.packageName, false);
-                if (rApp.isCheck)
-                    rApps.add(rApp);
+            } else {
+                rApp.isCheck = false;
             }
         }
         return myDataset;
@@ -147,23 +144,27 @@ public class MainActivity extends AppCompatActivity {
     private void runStart() {
         if (MyIntentService.isRun)
             return;
+        ArrayList<RApp> rApps = new ArrayList<>();
+        for (RApp rApp : myDataset) {
+            if (rApp.isCheck)
+                rApps.add(rApp);
+        }
         if (rApps.isEmpty()) {
             KTools.showToast("必须选择要阅读的APP！！！");
         } else {
             viewOverlap.setVisibility(View.VISIBLE);
             KTools.showToast("即将开始阅读：" + rApps.size() + " 个APP");
-            moveTaskToBack(true);
 
             MyIntentService.isRun = true;
-            Collections.sort(rApps, (t, t1) -> Integer.compare(t.sIndex, t1.sIndex));
-            for (RApp rApp : rApps) {
-                KTools.setBooleanPreference(rApp.packageName, rApp.isCheck);
-            }
-            MyIntentService.startActionService(this, rApps);
+//            Collections.sort(rApps, (t, t1) -> Integer.compare(t.sIndex, t1.sIndex));
+
+            MyIntentService.startActionService(this);
 
             Intent intent = new Intent(this.getApplicationContext(), IconService.class);
             startService(intent);
             startService(new Intent(this.getApplicationContext(), RemoteService.class));
+
+//            moveTaskToBack(true);
         }
     }
 
@@ -205,8 +206,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.all_checked:
                 for (RApp rApp : myDataset) {
                     rApp.isCheck = true;
-                    if (!rApps.contains(rApp))
-                        rApps.add(rApp);
                     KTools.setBooleanPreference(rApp.packageName, rApp.isCheck);
                 }
                 mAdapter.notifyDataSetChanged();
@@ -216,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
                     rApp.isCheck = false;
                     KTools.setBooleanPreference(rApp.packageName, rApp.isCheck);
                 }
-                rApps.clear();
                 mAdapter.notifyDataSetChanged();
                 break;
             case R.id.open_display_page:
@@ -274,19 +272,11 @@ public class MainActivity extends AppCompatActivity {
                 RApp rApp = (RApp) compoundButton.getTag();
                 KTools.setBooleanPreference(rApp.packageName, b);
                 rApp.isCheck = b;
-                if (b) {
-                    if (!rApps.contains(rApp))
-                        rApps.add(rApp);
-                } else {
-                    rApps.remove(rApp);
-                }
             });
             if (myData.isEnable) {
                 holder.checkBox.setOnClickListener(null);
             } else {
-                holder.checkBox.setOnClickListener(view -> {
-                    KTools.showToast("没有安装 " + myData.appName + " APP~");
-                });
+                holder.checkBox.setOnClickListener(view -> KTools.showToast("没有安装 " + myData.appName + " APP~"));
             }
             holder.checkBox.setTag(myData);
         }
