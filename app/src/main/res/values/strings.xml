@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">薅羊毛</string>
+    <string name="app_name_text">薅羊毛%s</string>
 
     <string name="action_start_reader_text">启动阅读</string>
     <string name="action_stop_reader_text">停止阅读</string>

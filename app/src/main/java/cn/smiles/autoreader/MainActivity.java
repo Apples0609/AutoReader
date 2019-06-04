@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         KPhone.cHeight = getResources().getDisplayMetrics().heightPixels;
 
         KTools.getRootPermission();
+        new TextView(this).setText(getResources().getString(R.string.app_name_text, "xxx"));
     }
 
     @Override
@@ -154,6 +156,9 @@ public class MainActivity extends AppCompatActivity {
 
             MyIntentService.isRun = true;
             Collections.sort(rApps, (t, t1) -> Integer.compare(t.sIndex, t1.sIndex));
+            for (RApp rApp : rApps) {
+                KTools.setBooleanPreference(rApp.packageName, rApp.isCheck);
+            }
             MyIntentService.startActionService(this, rApps);
 
             Intent intent = new Intent(this.getApplicationContext(), IconService.class);
