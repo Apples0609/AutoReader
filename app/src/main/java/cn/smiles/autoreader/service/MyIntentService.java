@@ -83,9 +83,13 @@ public class MyIntentService extends IntentService {
                         }
                     }
                     if (isRun) {
-                        RApp rApp = rApps.get(i);
-                        KTools.showToast("===" + (i + 1) + "/" + rApps.size() + "===");
-                        rApp.runApp();
+                        try {
+                            RApp rApp = rApps.get(i);
+                            KTools.showToast("===" + (i + 1) + "/" + rApps.size() + "===");
+                            rApp.runApp();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         return;
                     }
