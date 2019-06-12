@@ -11,6 +11,7 @@
         android:id="@+id/action_stop_reader"
         android:orderInCategory="99"
         android:title="@string/action_stop_reader_text"
+        android:visible="false"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_settings"
